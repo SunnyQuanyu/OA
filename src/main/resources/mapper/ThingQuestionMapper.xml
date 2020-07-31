@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.lcl.mapper.ThingQuestionMapper">
+    <resultMap id="QuestionOptions" type="cn.lcl.pojo.ThingQuestion" autoMapping="true">
+        <id property="id" column="id"/>
+        <collection property="options" ofType="cn.lcl.pojo.QuestionOption">
+            <result column="qoid" property="id"/>
+            <result column="qoquestion_id" property="questionId"/>
+            <result column="qonumber" property="number"/>
+            <result column="qocontent" property="content"/>
+            <result column="qototal_choose" property="totalChoose"/>
+            <result column="qototal_score" property="totalScore"/>
+            <result column="qocreate_time" property="createTime"/>
+            <result column="qocreator_id" property="creatorId"/>
+            <result column="qoupdate_time" property="updateTime"/>
+            <result column="qoupdator_id" property="updatorId"/>
+        </collection>
+    </resultMap>
+    <select id="selectQuestionListByThingId" resultMap="QuestionOptions">
+        select tq.*,
+               qo.id           qoid,
+               qo.question_id  qoquestion_id,
+               qo.number       qonumber,
+               qo.content      qocontent,
+               qo.total_choose qototal_choose,
+               qo.total_score  qototal_score,
+               qo.create_time  qocreate_time,
+               qo.creator_id   qocreator_id,
+               qo.update_time  qoupdate_time,
+               qo.updator_id   qoupdator_id
+        from thing_question tq
+                 left join question_option qo on tq.id = qo.question_id
+        where tq.thing_id = #{thingId}
+          and tq.delete_flg = 0
+          and qo.delete_flg = 0
+        order by tq.number
+    </select>
+    <select id="selectQuestionType" resultType="java.lang.String">
+        select tq.reply_type
+        from thing_question tq
+        where tq.id = #{thingId}
+          and tq.delete_flg = 0
+    </select>
+    <resultMap id="QuestionAnswers" type="cn.lcl.pojo.ThingQuestion" autoMapping="true">
+        <id property="id" column="id"/>
+        <collection property="answers" ofType="cn.lcl.pojo.QuestionAnswer">
+            <result column="qa_id" property="id"/>
+            <result column="qa_user_id" property="userId"/>
+            <result column="qa_question_id" property="questionId"/>
+            <result column="qa_question_option_id" property="questionOptionId"/>
+            <result column="qa_score" property="score"/>
+            <result column="qa_input_text" property="inputText"/>
+            <result column="qa_create_time" property="createTime"/>
+            <result column="qa_creator_id" property="creatorId"/>
+            <result column="qa_update_time" property="updateTime"/>
+            <result column="qa_updator_id" property="updatorId"/>
+            <result column="qo_id" property="option.id"/>
+            <result column="qo_question_id" property="option.questionId"/>
+            <result column="qo_number" property="option.number"/>
+            <result column="qo_content" property="option.content"/>
+            <result column="qo_total_choose" property="option.totalChoose"/>
+            <result column="qo_total_score" property="option.totalScore"/>
+            <result column="qo_create_time" property="option.createTime"/>
+            <result column="qo_creator_id" property="option.creatorId"/>
+            <result column="qo_update_time" property="option.updateTime"/>
+            <result column="qo_updator_id" property="option.updatorId"/>
+        </collection>
+    </resultMap>
+    <select id="selectQuestionAnswers" resultMap="QuestionAnswers">
+        select tq.*,
+               qa.id                 qa_id,
+               qa.user_id            qa_user_id,
+               qa.question_id        qa_question_id,
+               qa.question_option_id qa_question_option_id,
+               qa.score              qa_score,
+               qa.input_text         qa_input_text,
+               qa.create_time        qa_create_time,
+               qa.creator_id         qa_creator_id,
+               qa.update_time        qa_update_time,
+               qa.updator_id         qa_updator_id,
+               qo.id                 qo_id,
+               qo.question_id        qo_question_id,
+               qo.number             qo_number,
+               qo.content            qo_content,
+               qo.total_choose       qo_total_choose,
+               qo.total_score        qo_total_score,
+               qo.create_time        qo_create_time,
+               qo.creator_id         qo_creator_id,
+               qo.update_time        qo_update_time,
+               qo.updator_id         qo_updator_id
+        from thing t
+                 left join thing_question tq on t.id = tq.thing_id
+                 left join question_answer qa on tq.id = qa.question_id
+                 left join question_option qo on qo.id = qa.question_option_id
+        where qa.user_id = #{userId}
+          and t.id = #{thingId}
+          and t.delete_flg = 0
+          and qa.delete_flg = 0
+          and tq.delete_flg = 0
+          and qo.delete_flg = 0
+        order by tq.id
+    </select>
+</mapper>

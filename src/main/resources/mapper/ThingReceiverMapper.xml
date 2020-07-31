@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.lcl.mapper.ThingReceiverMapper">
+    <resultMap id="ThingReceiver" type="cn.lcl.pojo.ThingReceiver">
+        <result property="id" column="id"/>
+        <result property="thingId" column="thing_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="hasRead" column="has_read"/>
+        <result property="content" column="content"/>
+        <result property="hasFinished" column="has_finished"/>
+        <result property="createTime" column="create_time"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="userId" column="updator_id"/>
+        <association property="thing" javaType="cn.lcl.pojo.Thing">
+            <result property="id" column="tid"/>
+            <result property="title" column="tt"/>
+            <result property="content" column="tc"/>
+            <result property="startTime" column="tst"/>
+            <result property="endTime" column="tet"/>
+            <result property="hasSendFile" column="thsf"/>
+            <result property="needAnswer" column="tna"/>
+            <result property="needFileReply" column="nfr"/>
+            <result property="needFinish" column="nf"/>
+            <result property="parentThingId" column="tpti"/>
+            <result property="remindTime" column="trt"/>
+            <result property="createTime" column="tct"/>
+            <result property="updateTime" column="tut"/>
+            <result property="creatorId" column="tci"/>
+            <result property="updatorId" column="tui"/>
+            <result property="realName" column="urn"/>
+            <result property="tagName" column="tagn"/>
+        </association>
+    </resultMap>
+    <select id="selectThingReceiversByReceiverId" resultMap="ThingReceiver">
+        select tr.*,
+        t.id tid,
+        t.title tt,
+        t.content tc,
+        t.start_time tst,
+        t.end_time tet,
+        t.has_send_file thsf,
+        t.need_answer tna,
+        t.need_file_reply nfr,
+        t.need_finish nf,
+        t.parent_thing_id tpti,
+        t.remind_time trt,
+        t.create_time tct,
+        t.update_time tut,
+        t.creator_id tci,
+        t.updator_id tui,
+        u.real_name urn,
+        tag.tag_name tagn
+        from thing t
+        left join thing_receiver tr on t.id = tr.thing_id
+        left join user u on t.creator_id = u.id
+        left join thing_tag tt on t.id = tt.thing_id
+        left join tag on tt.tag_id = tag.id
+        where tr.user_id = #{userId}
+        and t.delete_flg = 0
+        and tr.delete_flg = 0
+        and u.delete_flg = 0
+        and tt.delete_flg = 0
+        and tag.delete_flg = 0
+        <if test="thingReceiver!=null and thingReceiver.hasFinished!=null">
+            and tr.has_finished = #{thingReceiver.hasFinished}
+            and t.need_finish = '1'
+        </if>
+        <if test="thingReceiver!=null and thingReceiver.hasRead!=null">
+            and tr.has_read = #{thingReceiver.hasRead}
+        </if>
+        order by t.create_time desc
+    </select>
+    <select id="selectThingReceiversAndUserRealNamePageByThingId" resultType="cn.lcl.pojo.ThingReceiver">
+        select tr.*, u.real_name
+        from thing_receiver tr
+        left join user u on tr.user_id = u.id
+        where tr.thing_id = #{thingReceiver.thingId}
+        and u.delete_flg = 0
+        and tr.delete_flg = 0
+        <if test="thingReceiver!=null and thingReceiver.hasFinished!=null">
+            and tr.has_finished = #{thingReceiver.hasFinished}
+        </if>
+        <if test="thingReceiver!=null and thingReceiver.hasRead!=null">
+            and tr.has_read = #{thingReceiver.hasRead}
+        </if>
+    </select>
+    <select id="selectThingReceiverAndUserRealNamePage" resultType="cn.lcl.pojo.ThingReceiver">
+        select tr.*, u.real_name
+        from thing_receiver tr
+                 left join user u on tr.user_id = u.id
+        where tr.thing_id = #{thingId}
+          and tr.user_id = #{userId}
+          and u.delete_flg = 0
+          and tr.delete_flg = 0
+    </select>
+</mapper>

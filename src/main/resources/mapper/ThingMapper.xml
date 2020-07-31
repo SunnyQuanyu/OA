@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.lcl.mapper.ThingMapper">
+    <select id="getCreatedThingsByUserId" resultType="cn.lcl.pojo.vo.ThingCreatedListOneVO">
+        select t.*,
+               tag.tag_name,
+               sum(tr.has_read)   readCount,
+               sum(tr.has_finished) finishedCount,
+               count(tr.id)       receiversCount
+        from thing t
+                 left join thing_receiver tr on t.id = tr.thing_id
+                 left join thing_tag tt on t.id = tt.thing_id
+                 left join tag on tt.tag_id = tag.id
+        where t.creator_id = #{userId}
+          and t.delete_flg = 0
+          and tr.delete_flg = 0
+          and tt.delete_flg = 0
+          and tag.delete_flg = 0
+        group by t.id, t.create_time, tag.tag_name
+        order by t.create_time desc
+    </select>
+
+
+    <select id="getCreatedThingsExpectTag" resultType="cn.lcl.pojo.vo.ThingCreatedListOneVO">
+    select t.*,
+    sum(tr.has_read)   readCount,
+    sum(tr.has_finished) finishedCount,
+    count(tr.id)       receiversCount
+    from thing t
+    left join thing_receiver tr on t.id = tr.thing_id
+    where t.creator_id = #{userId}
+    and t.delete_flg = 0
+    and tr.delete_flg = 0
+    group by t.id, t.create_time
+    order by t.create_time desc
+</select>
+
+
+
+
+
+
+
+    <select id="getCreatedThingAboutReceiverNum" resultType="cn.lcl.pojo.vo.ThingCreatedVO">
+        select sum(tr.has_read)   readCount,
+               sum(tr.has_finished) finishedCount,
+               count(tr.id)       receiversCount
+        from thing t
+                 left join thing_receiver tr on t.id = tr.thing_id
+        where t.id = #{thingId}
+          and t.delete_flg = 0
+          and tr.delete_flg = 0
+    </select>
+    <select id="getThingById" resultType="cn.lcl.pojo.Thing">
+        select t.*, u.real_name, tag.tag_name
+        from thing t
+                 left join user u on t.creator_id = u.id
+                 left join thing_tag tt on t.id = tt.thing_id
+                 left join tag on tt.tag_id = tag.id
+        where t.id = #{thingId}
+          and t.delete_flg = 0
+          and u.delete_flg = 0
+          and tt.delete_flg = 0
+          and tag.delete_flg = 0
+    </select>
+
+
+    <select id="getTagByThingId" resultType="cn.lcl.pojo.Tag">
+        select t.*
+        from tag t
+                 left join thing_tag tt on t.id = tt.tag_id
+        where tt.thing_id = #{thingId}
+          and t.delete_flg = 0
+          and tt.delete_flg = 0
+    </select>
+
+
+
+</mapper>

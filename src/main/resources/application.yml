@@ -1,0 +1,21 @@
+spring:
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+mybatis-plus:
+  mapper-locations:
+    - classpath*:mapper/*.xml
+  global-config:
+    db-config:
+      logic-delete-field: deleteFlg
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+wx:
+  appid: wx47d21bc83df4e7a7
+  code2token-url: https://api.weixin.qq.com/sns/oauth2/access_token?appid={appid}&secret={secret}&code={code}&grant_type=authorization_code
+  wx-token-url: https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={appid}&secret={secret}
+  template-url: https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={access_token}
+  template_id: anAuispv3jFEYoXqkraIn9wfcIzrf4qST-1BRzg95k8
