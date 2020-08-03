@@ -71,6 +71,65 @@
         </if>
         order by t.create_time desc
     </select>
+
+
+    <select id="selectThingReceiversByReceiverIdExceptTag" resultMap="ThingReceiver">
+        select tr.*,
+        t.id tid,
+        t.title tt,
+        t.content tc,
+        t.start_time tst,
+        t.end_time tet,
+        t.has_send_file thsf,
+        t.need_answer tna,
+        t.need_file_reply nfr,
+        t.need_finish nf,
+        t.parent_thing_id tpti,
+        t.remind_time trt,
+        t.create_time tct,
+        t.update_time tut,
+        t.creator_id tci,
+        t.updator_id tui,
+        u.real_name urn,
+        tag.tag_name tagn
+        from thing t
+        left join thing_receiver tr on t.id = tr.thing_id
+        left join user u on t.creator_id = u.id
+        left join thing_tag tt on t.id = tt.thing_id
+        left join tag on tt.tag_id = tag.id
+        where tr.user_id = #{userId}
+        and t.delete_flg = 0
+        and tr.delete_flg = 0
+        and u.delete_flg = 0
+        and tt.delete_flg = 0
+        and tag.delete_flg = 0
+        <if test="thingReceiver!=null and thingReceiver.hasFinished!=null">
+            and tr.has_finished = #{thingReceiver.hasFinished}
+            and t.need_finish = '1'
+        </if>
+        <if test="thingReceiver!=null and thingReceiver.hasRead!=null">
+            and tr.has_read = #{thingReceiver.hasRead}
+        </if>
+        order by t.create_time desc
+    </select>
+
+
+    <select id="getTagByReceiverId" resultType="cn.lcl.pojo.Tag">
+        select t.*
+        from tag t
+
+                 left join thing_tag tt on t.id = tt.tag_id
+                 left join thing_receiver tr on tt.thing_id = tr.thing_id
+        where tr.user_id = #{userId}
+          and tt.thing_id = #{thingId}
+          and t.delete_flg = 0
+          and tt.delete_flg = 0
+          and tr.delete_flg = 0
+    </select>
+
+
+
+
     <select id="selectThingReceiversAndUserRealNamePageByThingId" resultType="cn.lcl.pojo.ThingReceiver">
         select tr.*, u.real_name
         from thing_receiver tr

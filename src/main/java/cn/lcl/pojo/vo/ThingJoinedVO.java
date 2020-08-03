@@ -16,4 +16,6 @@ public class ThingJoinedVO {
 
     private List<ThingQuestion> questions;
 
+    private String tagName;
+
 }

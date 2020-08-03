@@ -231,8 +231,12 @@ public class ThingServiceImpl implements ThingService {
             List<Tag> Tags = thingMapper.getTagByThingId(things2.getId());
             String tagName = "";
             for(Tag getTags : Tags){
-                tagName =tagName + getTags.getTagName() + ",";
+
+                    tagName = tagName + getTags.getTagName() + ",";
+
             }
+            tagName = tagName.substring(0,tagName.length()-1);
+
             things2.setTagName(tagName);
         }
 
@@ -243,33 +247,36 @@ public class ThingServiceImpl implements ThingService {
     @Override
     public Result getCreatedThingAndReceivers(SearchPageDTO<ThingReceiver> page) {
         ThingReceiver tr = page.getData();
-        Thing thing = thingMapper.getThingById(tr.getThingId());
-        if (thing == null) {
+        List<Thing> thing = thingMapper.getThingById(tr.getThingId());
+        if (thing == null || thing.size() == 0) {
             throw new MyException(ResultEnum.THING_NOT_FOUND);
         }
         // 1. valid the thing not null.
         // 2. get vo from mapper and set its thing field.
-        ThingCreatedVO thingCreatedVO = thingMapper.getCreatedThingAboutReceiverNum(thing.getId());
-        // 3.4. get the files, questions
-        getCommonThingVO(thing, thingCreatedVO);
-        // 5. get the receivers page.
-        Page<ThingReceiver> paramPage = page.getParamPage();
-        thingCreatedVO.setThingReceiversPage(
-                thingReceiverMapper.selectThingReceiversAndUserRealNamePageByThingId(paramPage, tr));
+
+            ThingCreatedVO thingCreatedVO = thingMapper.getCreatedThingAboutReceiverNum(thing.get(0).getId());
+            // 3.4. get the files, questions
+            getCommonThingVO(thing.get(0), thingCreatedVO);
+            // 5. get the receivers page.
+            Page<ThingReceiver> paramPage = page.getParamPage();
+            thingCreatedVO.setThingReceiversPage(
+                    thingReceiverMapper.selectThingReceiversAndUserRealNamePageByThingId(paramPage, tr));
+
 
         return ResultUtil.success(thingCreatedVO);
     }
 
     @Override
     public Result getJoinedThing(IdDTO thingId) {
-        Thing thing = thingMapper.getThingById(thingId.getId());
-        ThingReceiver thingReceiver = checkThingAndGetThingReceiver(thing);
-        thingReceiver.setHasRead("1");
-        thingReceiverMapper.updateById(thingReceiver);
-        // 1. get the thing entity.
-        ThingJoinedVO thingJoinedVO = new ThingJoinedVO();
-        // 2. get others.
-        getCommonThingVO(thing, thingJoinedVO);
+        List<Thing> thing = thingMapper.getThingById(thingId.getId());
+
+            ThingReceiver thingReceiver = checkThingAndGetThingReceiver(thing.get(0));
+            thingReceiver.setHasRead("1");
+            thingReceiverMapper.updateById(thingReceiver);
+            // 1. get the thing entity.
+            ThingJoinedVO thingJoinedVO = new ThingJoinedVO();
+            // 2. get others.
+            getCommonThingVO(thing.get(0), thingJoinedVO);
 
         return ResultUtil.success(thingJoinedVO);
     }
@@ -290,8 +297,27 @@ public class ThingServiceImpl implements ThingService {
     public Result listJoinedThings(SearchPageDTO<ThingReceiver> page) {
         User user = AuthcUtil.getUser();
         Page<ThingReceiver> paramPage = page.getParamPage();
-        return ResultUtil.success(thingReceiverMapper.selectThingReceiversByReceiverId(
-                paramPage, user.getId(), page.getData()));
+
+    /*    Page<ThingReceiver> receiversThings = thingReceiverMapper.selectThingReceiversByReceiverId(
+                paramPage, user.getId(), page.getData());*/
+
+        Page<ThingReceiver> receiversThings1 = thingReceiverMapper.selectThingReceiversByReceiverIdExceptTag(
+                paramPage, user.getId(), page.getData());
+
+        for(ThingReceiver receiversThings2 : receiversThings1.getRecords()){
+            List<Tag> Tags = thingReceiverMapper.getTagByReceiverId(user.getId(),receiversThings2.getThingId());
+            String tagName1 = "";
+            for(Tag getTags : Tags){
+                System.out.println(getTags.getTagName());
+                tagName1 =tagName1 + getTags.getTagName() + ",";
+                System.out.println(tagName1);
+            }
+            tagName1 = tagName1.substring(0,tagName1.length()-1);
+            receiversThings2.setTagName(tagName1);
+            System.out.println(tagName1);
+        }
+
+        return ResultUtil.success(receiversThings1);
     }
 
     @Transactional
