@@ -1,5 +1,6 @@
 package cn.lcl.service;
 
+import cn.lcl.pojo.Thing;
 import cn.lcl.pojo.dto.SearchPageDTO;
 import cn.lcl.pojo.dto.IdDTO;
 import cn.lcl.pojo.dto.ThingAddDTO;
@@ -35,5 +36,8 @@ public interface ThingService {
 
     //  查看一个事务是否完成
     Result ifFinished(IdDTO idDTO);
+
+    //删除一条事务
+    Result deleteThing(IdDTO thingId);
 
 }

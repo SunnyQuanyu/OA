@@ -14,13 +14,17 @@ import cn.lcl.service.QuestionService;
 import cn.lcl.service.ThingService;
 import cn.lcl.service.WxService;
 import cn.lcl.util.AuthcUtil;
+import cn.lcl.util.FieldStringUtil;
 import cn.lcl.util.FileUtil;
 import cn.lcl.util.ResultUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 @Service
@@ -221,62 +226,93 @@ public class ThingServiceImpl implements ThingService {
     public Result listCreatedThings(SearchPageDTO<?> page) {
         User user = AuthcUtil.getUser();
         Page<ThingCreatedListOneVO> paramPage = page.getParamPage();
-       // Page<ThingCreatedListOneVO> things = thingMapper.getCreatedThingsByUserId(paramPage, user.getId());
-
         Page<ThingCreatedListOneVO> things1 = thingMapper.getCreatedThingsExpectTag(paramPage, user.getId());
-
-
-
         for(ThingCreatedListOneVO things2 : things1.getRecords()){
             List<Tag> Tags = thingMapper.getTagByThingId(things2.getId());
             String tagName = "";
             for(Tag getTags : Tags){
-
                     tagName = tagName + getTags.getTagName() + ",";
-
             }
             tagName = tagName.substring(0,tagName.length()-1);
-
             things2.setTagName(tagName);
         }
-
-
         return ResultUtil.success(things1);
+      /*  Thing thing = page.getData();
+        QueryWrapper<Thing> query = Wrappers.query();
+        Map<String, String> map = null;
+        try{
+            map = BeanUtils.describe(thing);
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                if (entry.getValue() != null) {
+                    query.like(FieldStringUtil.HumpToUnderline(entry.getKey()), entry.getValue());
+                }
+            }
+            return ResultUtil.success(thingMapper.selectPage(
+                    new Page<>(page.getPageCurrent(), page.getPageSize()), query));
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new MyException(ResultEnum.USERS_FIND_ERROR);
+        }*/
     }
 
     @Override
     public Result getCreatedThingAndReceivers(SearchPageDTO<ThingReceiver> page) {
         ThingReceiver tr = page.getData();
-        List<Thing> thing = thingMapper.getThingById(tr.getThingId());
-        if (thing == null || thing.size() == 0) {
+        Thing thing = thingMapper.getThingById11(tr.getThingId());
+        if (thing == null ) {
             throw new MyException(ResultEnum.THING_NOT_FOUND);
         }
         // 1. valid the thing not null.
         // 2. get vo from mapper and set its thing field.
 
-            ThingCreatedVO thingCreatedVO = thingMapper.getCreatedThingAboutReceiverNum(thing.get(0).getId());
+            ThingCreatedVO thingCreatedVO = thingMapper.getCreatedThingAboutReceiverNum(thing.getId());
             // 3.4. get the files, questions
-            getCommonThingVO(thing.get(0), thingCreatedVO);
+            getCommonThingVO(thing, thingCreatedVO);
             // 5. get the receivers page.
             Page<ThingReceiver> paramPage = page.getParamPage();
             thingCreatedVO.setThingReceiversPage(
                     thingReceiverMapper.selectThingReceiversAndUserRealNamePageByThingId(paramPage, tr));
+            System.out.println(thingCreatedVO);
 
+            List<Tag> tags = thingMapper.getTagByThingId(thingCreatedVO.getThing().getId());
+            String tagName22 = "";
+            for(Tag tag1 : tags) {
+                 tagName22 = tagName22 + tag1.getTagName() + ",";
+            }
+        tagName22 = tagName22.substring(0,tagName22.length()-1);
+            thingCreatedVO.getThing().setTagName(tagName22);
 
         return ResultUtil.success(thingCreatedVO);
     }
 
     @Override
     public Result getJoinedThing(IdDTO thingId) {
-        List<Thing> thing = thingMapper.getThingById(thingId.getId());
+        Thing thing = thingMapper.getThingById11(thingId.getId());
 
-            ThingReceiver thingReceiver = checkThingAndGetThingReceiver(thing.get(0));
+            ThingReceiver thingReceiver = checkThingAndGetThingReceiver(thing);
+        List<Tag> Tags = thingReceiverMapper.getTagByReceiverId(thingReceiver.getUserId(),thingReceiver.getThingId());
             thingReceiver.setHasRead("1");
+
+            String tagName1 ="";
+        for(Tag getTags : Tags){
+
+
+            tagName1 =tagName1 + getTags.getTagName() + ",";
+            System.out.println(tagName1);
+
+        }
+        tagName1 = tagName1.substring(0,tagName1.length()-1);
+        thingReceiver.setTagName(tagName1);
+
+        System.out.println(thingReceiver.getTagName());
+
             thingReceiverMapper.updateById(thingReceiver);
+            thing.setTagName(tagName1);
             // 1. get the thing entity.
+        System.out.println(thing.getTagName());
             ThingJoinedVO thingJoinedVO = new ThingJoinedVO();
             // 2. get others.
-            getCommonThingVO(thing.get(0), thingJoinedVO);
+            getCommonThingVO(thing, thingJoinedVO);
 
         return ResultUtil.success(thingJoinedVO);
     }
@@ -292,6 +328,13 @@ public class ThingServiceImpl implements ThingService {
         thingReceiverMapper.updateById(one);
         return ResultUtil.success(one);
     }
+
+    @Override
+    public Result deleteThing(IdDTO thingId) {
+
+        return ResultUtil.success(thingMapper.deleteThingById(thingId.getId()));
+    }
+
 
     @Override
     public Result listJoinedThings(SearchPageDTO<ThingReceiver> page) {

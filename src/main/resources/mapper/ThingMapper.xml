@@ -20,6 +20,11 @@
         order by t.create_time desc
     </select>
 
+<update id="deleteThingById" parameterType="java.lang.Integer">
+    update thing
+    set delete_flg = 1
+    where id = #{thingId}
+</update>
 
     <select id="getCreatedThingsExpectTag" resultType="cn.lcl.pojo.vo.ThingCreatedListOneVO">
     select t.*,
@@ -35,6 +40,20 @@
     order by t.create_time desc
 </select>
 
+    <select id="getCreatedThingsAddIf" resultType="cn.lcl.pojo.vo.ThingCreatedListOneVO">
+    select t.*,
+    sum(tr.has_read)   readCount,
+    sum(tr.has_finished) finishedCount,
+    count(tr.id)       receiversCount
+    from thing t
+    left join thing_receiver tr on t.id = tr.thing_id
+    where t.creator_id = #{userId}
+    and t.delete_flg = 0
+    and tr.delete_flg = 0
+
+    group by t.id, t.create_time
+    order by t.create_time desc
+</select>
 
 
 
@@ -62,6 +81,15 @@
           and u.delete_flg = 0
           and tt.delete_flg = 0
           and tag.delete_flg = 0
+    </select>
+
+    <select id="getThingById11" resultType="cn.lcl.pojo.Thing">
+        select t.*, u.real_name
+        from thing t
+                 left join user u on t.creator_id = u.id
+        where t.id = #{thingId}
+          and t.delete_flg = 0
+          and u.delete_flg = 0
     </select>
 
 

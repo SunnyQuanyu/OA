@@ -20,7 +20,11 @@ public interface ThingMapper extends BaseMapper<Thing> {
 
     ThingCreatedVO getCreatedThingAboutReceiverNum(Integer thingId);
 
-    List<Thing> getThingById(Integer thingId);
+    Thing getThingById(Integer thingId);
+
+    Thing getThingById11(Integer thingId);
+
+    Integer deleteThingById(Integer thingId);
 
     List<Tag> getTagByThingId(Integer thingId);
 

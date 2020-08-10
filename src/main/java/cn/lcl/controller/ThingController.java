@@ -1,5 +1,6 @@
 package cn.lcl.controller;
 
+import cn.lcl.pojo.Thing;
 import cn.lcl.pojo.dto.SearchPageDTO;
 import cn.lcl.pojo.dto.IdDTO;
 import cn.lcl.pojo.dto.ThingAddDTO;
@@ -44,10 +45,14 @@ public class ThingController {
     }
 
     @PostMapping("/createdList")
-    public Result createdList(@RequestBody @Valid SearchPageDTO<?> page, BindingResult result) {
+    public Result createdList(@RequestBody @Valid SearchPageDTO<Thing> page, BindingResult result) {
         return ResultUtil.vaildFieldError(result, () -> thingService.listCreatedThings(page));
     }
 
+    @PostMapping("/deleteThing")
+    public Result deleteThing(@RequestBody @Valid IdDTO thingId, BindingResult result){
+        return ResultUtil.vaildFieldError(result, () -> thingService.deleteThing(thingId));
+    }
     /**
      *
      * @param page Page
@@ -58,6 +63,7 @@ public class ThingController {
     public Result createdGet(@RequestBody @Valid SearchPageDTO<ThingReceiver> page, BindingResult result) {
         return ResultUtil.vaildFieldError(result, () -> thingService.getCreatedThingAndReceivers(page));
     }
+
 
     /**
      * 事务接受者获取一个事务信息
