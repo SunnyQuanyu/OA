@@ -3,6 +3,7 @@ package cn.lcl.mapper;
 import cn.lcl.pojo.Tag;
 import cn.lcl.pojo.Thing;
 import cn.lcl.pojo.vo.ThingCreatedListOneVO;
+import cn.lcl.pojo.vo.ThingCreatedSearchVo;
 import cn.lcl.pojo.vo.ThingCreatedVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -29,4 +30,7 @@ public interface ThingMapper extends BaseMapper<Thing> {
     List<Tag> getTagByThingId(Integer thingId);
 
     Page<ThingCreatedListOneVO> getCreatedThingsExpectTag(@Param("page") Page<?> page, @Param("userId") Integer userId);
+
+    List<ThingCreatedListOneVO> getCreatedThings(@Param("data") ThingCreatedSearchVo searchVo,
+                                                 @Param("userId") Integer userId);
 }

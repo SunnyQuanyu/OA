@@ -20,7 +20,7 @@
         order by t.create_time desc
     </select>
 
-<update id="deleteThingById" parameterType="java.lang.Integer">
+    <update id="deleteThingById" parameterType="java.lang.Integer">
     update thing
     set delete_flg = 1
     where id = #{thingId}
@@ -54,10 +54,6 @@
     group by t.id, t.create_time
     order by t.create_time desc
 </select>
-
-
-
-
 
 
     <select id="getCreatedThingAboutReceiverNum" resultType="cn.lcl.pojo.vo.ThingCreatedVO">
@@ -102,6 +98,29 @@
           and tt.delete_flg = 0
     </select>
 
+    <select id="getCreatedThings" resultType="cn.lcl.pojo.vo.ThingCreatedListOneVO">
+        SELECT t.*,
+        sum(tr.has_read)   readCount,
+        sum(tr.has_finished) finishedCount,
+        count(tr.id)       receiversCount
+        FROM thing AS t
+        INNER JOIN thing_receiver AS tr ON t.id = tr.thing_id
+        WHERE t.creator_id = #{userId}
+        <if test="data.title != null">AND t.title LIKE CONCAT('%',#{data.title},'%')</if>
+        <if test="data.startTime != null">AND t.start_time &gt;= #{data.startTime}</if>
+        <if test="data.endTime != null">AND t.end_time &lt;= #{data.endTime}</if>
+        <if test="data.hasSendFile != null">AND t.has_send_file = #{data.hasSendFile}</if>
+        <if test="data.needAnswer != null">AND t.need_answer = #{data.needAnswer}</if>
+        <if test="data.needFileReply != null">AND t.need_file_reply = #{data.needFileReply}</if>
+        <if test="data.needFinish != null">AND t.need_finish = #{data.needFinish}</if>
+        AND t.delete_flg = 0
+        AND tr.delete_flg = 0
+        GROUP BY
+        t.id,
+        t.create_time
+        ORDER BY
+        t.create_time DESC
+    </select>
 
 
 </mapper>

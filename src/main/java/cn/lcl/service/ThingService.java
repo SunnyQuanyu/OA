@@ -7,6 +7,7 @@ import cn.lcl.pojo.dto.ThingAddDTO;
 import cn.lcl.pojo.dto.ThingFinishDTO;
 import cn.lcl.pojo.ThingReceiver;
 import cn.lcl.pojo.result.Result;
+import cn.lcl.pojo.vo.ThingCreatedSearchVo;
 
 public interface ThingService {
 
@@ -39,5 +40,8 @@ public interface ThingService {
 
     //删除一条事务
     Result deleteThing(IdDTO thingId);
+
+    //搜索创建事务
+    Result listCreatedThings1(SearchPageDTO<ThingCreatedSearchVo> page);
 
 }

@@ -7,6 +7,7 @@ import cn.lcl.pojo.dto.ThingAddDTO;
 import cn.lcl.pojo.dto.ThingFinishDTO;
 import cn.lcl.pojo.ThingReceiver;
 import cn.lcl.pojo.result.Result;
+import cn.lcl.pojo.vo.ThingCreatedSearchVo;
 import cn.lcl.service.ThingService;
 import cn.lcl.util.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,11 @@ public class ThingController {
     @PostMapping("/createdList")
     public Result createdList(@RequestBody @Valid SearchPageDTO<Thing> page, BindingResult result) {
         return ResultUtil.vaildFieldError(result, () -> thingService.listCreatedThings(page));
+    }
+
+    @PostMapping("/createdList1")
+    public Result createdList1(@RequestBody @Valid SearchPageDTO<ThingCreatedSearchVo> page, BindingResult result) {
+        return ResultUtil.vaildFieldError(result, () -> thingService.listCreatedThings1(page));
     }
 
     @PostMapping("/deleteThing")

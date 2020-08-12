@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -88,41 +89,41 @@ public class ThingServiceImpl implements ThingService {
 
             thingTagMapper.insert(thingTag);
         }
- System.out.print(thing.getTagId());
+        System.out.print(thing.getTagId());
         // 3.插入 事务-用户对应关系
 
-            List<Integer> users = new ArrayList<>();
-            for (String teamId : thing.getTeamId()) {
-                List<User> teamUsers = teamMemberMapper.selectUsersByTeamId(teamId);
-                for (User user : teamUsers) {
-                    if (!users.contains(user.getId())) {
-                        users.add(user.getId());
-                    }
+        List<Integer> users = new ArrayList<>();
+        for (String teamId : thing.getTeamId()) {
+            List<User> teamUsers = teamMemberMapper.selectUsersByTeamId(teamId);
+            for (User user : teamUsers) {
+                if (!users.contains(user.getId())) {
+                    users.add(user.getId());
                 }
             }
+        }
 
 
-            for(Integer i=0; i<users.size(); i++){
+        for (Integer i = 0; i < users.size(); i++) {
             for (Integer receiverId : thing.getReceiverIds()) {
-                if(!users.contains(receiverId)) {
+                if (!users.contains(receiverId)) {
                     users.add(receiverId);
                 }
             }
-            }
+        }
 
-                long startTime = System.currentTimeMillis();// 获取开始时间
-     //           ExecutorService executorService = Executors.newFixedThreadPool(teamUsers.size());
-                List<Future<Boolean>> futures = new ArrayList<>();
+        long startTime = System.currentTimeMillis();// 获取开始时间
+        //           ExecutorService executorService = Executors.newFixedThreadPool(teamUsers.size());
+        List<Future<Boolean>> futures = new ArrayList<>();
 
-                ThingReceiver thingReceiver = new ThingReceiver();
-                    for(Integer j : users) {
-                        thingReceiver.setHasRead("0");
-                        thingReceiver.setHasFinished("0");
-                        thingReceiver.setHasSendNote("0");
-                        thingReceiver.setThingId(thing.getId());
-                        thingReceiver.setUserId(j);
-                        thingReceiverMapper.insert(thingReceiver);
-                    }
+        ThingReceiver thingReceiver = new ThingReceiver();
+        for (Integer j : users) {
+            thingReceiver.setHasRead("0");
+            thingReceiver.setHasFinished("0");
+            thingReceiver.setHasSendNote("0");
+            thingReceiver.setThingId(thing.getId());
+            thingReceiver.setUserId(j);
+            thingReceiverMapper.insert(thingReceiver);
+        }
 
 
 
@@ -133,21 +134,20 @@ public class ThingServiceImpl implements ThingService {
                     }*/
 
 
-
-                for (Future<Boolean> future : futures) {
-                    try {
-                        future.get(500, TimeUnit.MILLISECONDS);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (TimeoutException e) {
-                        e.printStackTrace();
-                    }
-                }
-    //            executorService.shutdown();
-                long endTime = System.currentTimeMillis();// 获取结束时间
-                System.out.println("程序运行时间：" + (endTime - startTime) + "ms");
+        for (Future<Boolean> future : futures) {
+            try {
+                future.get(500, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+            }
+        }
+        //            executorService.shutdown();
+        long endTime = System.currentTimeMillis();// 获取结束时间
+        System.out.println("程序运行时间：" + (endTime - startTime) + "ms");
 
 
 
@@ -227,13 +227,13 @@ public class ThingServiceImpl implements ThingService {
         User user = AuthcUtil.getUser();
         Page<ThingCreatedListOneVO> paramPage = page.getParamPage();
         Page<ThingCreatedListOneVO> things1 = thingMapper.getCreatedThingsExpectTag(paramPage, user.getId());
-        for(ThingCreatedListOneVO things2 : things1.getRecords()){
+        for (ThingCreatedListOneVO things2 : things1.getRecords()) {
             List<Tag> Tags = thingMapper.getTagByThingId(things2.getId());
             String tagName = "";
-            for(Tag getTags : Tags){
-                    tagName = tagName + getTags.getTagName() + ",";
+            for (Tag getTags : Tags) {
+                tagName = tagName + getTags.getTagName() + ",";
             }
-            tagName = tagName.substring(0,tagName.length()-1);
+            tagName = tagName.substring(0, tagName.length() - 1);
             things2.setTagName(tagName);
         }
         return ResultUtil.success(things1);
@@ -259,28 +259,28 @@ public class ThingServiceImpl implements ThingService {
     public Result getCreatedThingAndReceivers(SearchPageDTO<ThingReceiver> page) {
         ThingReceiver tr = page.getData();
         Thing thing = thingMapper.getThingById11(tr.getThingId());
-        if (thing == null ) {
+        if (thing == null) {
             throw new MyException(ResultEnum.THING_NOT_FOUND);
         }
         // 1. valid the thing not null.
         // 2. get vo from mapper and set its thing field.
 
-            ThingCreatedVO thingCreatedVO = thingMapper.getCreatedThingAboutReceiverNum(thing.getId());
-            // 3.4. get the files, questions
-            getCommonThingVO(thing, thingCreatedVO);
-            // 5. get the receivers page.
-            Page<ThingReceiver> paramPage = page.getParamPage();
-            thingCreatedVO.setThingReceiversPage(
-                    thingReceiverMapper.selectThingReceiversAndUserRealNamePageByThingId(paramPage, tr));
-            System.out.println(thingCreatedVO);
+        ThingCreatedVO thingCreatedVO = thingMapper.getCreatedThingAboutReceiverNum(thing.getId());
+        // 3.4. get the files, questions
+        getCommonThingVO(thing, thingCreatedVO);
+        // 5. get the receivers page.
+        Page<ThingReceiver> paramPage = page.getParamPage();
+        thingCreatedVO.setThingReceiversPage(
+                thingReceiverMapper.selectThingReceiversAndUserRealNamePageByThingId(paramPage, tr));
+        System.out.println(thingCreatedVO);
 
-            List<Tag> tags = thingMapper.getTagByThingId(thingCreatedVO.getThing().getId());
-            String tagName22 = "";
-            for(Tag tag1 : tags) {
-                 tagName22 = tagName22 + tag1.getTagName() + ",";
-            }
-        tagName22 = tagName22.substring(0,tagName22.length()-1);
-            thingCreatedVO.getThing().setTagName(tagName22);
+        List<Tag> tags = thingMapper.getTagByThingId(thingCreatedVO.getThing().getId());
+        String tagName22 = "";
+        for (Tag tag1 : tags) {
+            tagName22 = tagName22 + tag1.getTagName() + ",";
+        }
+        tagName22 = tagName22.substring(0, tagName22.length() - 1);
+        thingCreatedVO.getThing().setTagName(tagName22);
 
         return ResultUtil.success(thingCreatedVO);
     }
@@ -289,30 +289,30 @@ public class ThingServiceImpl implements ThingService {
     public Result getJoinedThing(IdDTO thingId) {
         Thing thing = thingMapper.getThingById11(thingId.getId());
 
-            ThingReceiver thingReceiver = checkThingAndGetThingReceiver(thing);
-        List<Tag> Tags = thingReceiverMapper.getTagByReceiverId(thingReceiver.getUserId(),thingReceiver.getThingId());
-            thingReceiver.setHasRead("1");
+        ThingReceiver thingReceiver = checkThingAndGetThingReceiver(thing);
+        List<Tag> Tags = thingReceiverMapper.getTagByReceiverId(thingReceiver.getUserId(), thingReceiver.getThingId());
+        thingReceiver.setHasRead("1");
 
-            String tagName1 ="";
-        for(Tag getTags : Tags){
+        String tagName1 = "";
+        for (Tag getTags : Tags) {
 
 
-            tagName1 =tagName1 + getTags.getTagName() + ",";
+            tagName1 = tagName1 + getTags.getTagName() + ",";
             System.out.println(tagName1);
 
         }
-        tagName1 = tagName1.substring(0,tagName1.length()-1);
+        tagName1 = tagName1.substring(0, tagName1.length() - 1);
         thingReceiver.setTagName(tagName1);
 
         System.out.println(thingReceiver.getTagName());
 
-            thingReceiverMapper.updateById(thingReceiver);
-            thing.setTagName(tagName1);
-            // 1. get the thing entity.
+        thingReceiverMapper.updateById(thingReceiver);
+        thing.setTagName(tagName1);
+        // 1. get the thing entity.
         System.out.println(thing.getTagName());
-            ThingJoinedVO thingJoinedVO = new ThingJoinedVO();
-            // 2. get others.
-            getCommonThingVO(thing, thingJoinedVO);
+        ThingJoinedVO thingJoinedVO = new ThingJoinedVO();
+        // 2. get others.
+        getCommonThingVO(thing, thingJoinedVO);
 
         return ResultUtil.success(thingJoinedVO);
     }
@@ -347,15 +347,15 @@ public class ThingServiceImpl implements ThingService {
         Page<ThingReceiver> receiversThings1 = thingReceiverMapper.selectThingReceiversByReceiverIdExceptTag(
                 paramPage, user.getId(), page.getData());
 
-        for(ThingReceiver receiversThings2 : receiversThings1.getRecords()){
-            List<Tag> Tags = thingReceiverMapper.getTagByReceiverId(user.getId(),receiversThings2.getThingId());
+        for (ThingReceiver receiversThings2 : receiversThings1.getRecords()) {
+            List<Tag> Tags = thingReceiverMapper.getTagByReceiverId(user.getId(), receiversThings2.getThingId());
             String tagName1 = "";
-            for(Tag getTags : Tags){
+            for (Tag getTags : Tags) {
                 System.out.println(getTags.getTagName());
-                tagName1 =tagName1 + getTags.getTagName() + ",";
+                tagName1 = tagName1 + getTags.getTagName() + ",";
                 System.out.println(tagName1);
             }
-            tagName1 = tagName1.substring(0,tagName1.length()-1);
+            tagName1 = tagName1.substring(0, tagName1.length() - 1);
             receiversThings2.setTagName(tagName1);
             System.out.println(tagName1);
         }
@@ -504,5 +504,84 @@ public class ThingServiceImpl implements ThingService {
         if ("1".equals(thing.getNeedAnswer())) {
             vo.setQuestions(questionService.listQuestions(thing.getId()));
         }
+    }
+
+    @Override
+    public Result listCreatedThings1(SearchPageDTO<ThingCreatedSearchVo> page) {
+        User user = AuthcUtil.getUser();
+        Page<ThingCreatedSearchVo> paramPage = page.getParamPage();
+        ThingCreatedSearchVo data = page.getData();
+
+        List<ThingCreatedListOneVO> thing = thingMapper.getCreatedThings(data, user.getId());
+
+
+        if (data.getIsRead() != null) {
+            Iterator<ThingCreatedListOneVO> iterator = thing.iterator();
+            while (iterator.hasNext()) {
+                ThingCreatedListOneVO vo = iterator.next();
+                if (data.getIsRead() == 0 && vo.getReadCount() != 0) {//无人阅读
+                    iterator.remove();
+                } else if (data.getIsRead() == 1 && vo.getReadCount().equals(vo.getReceiversCount())) {//部分阅读
+                    iterator.remove();
+                } else if (data.getIsRead() == 2 && !vo.getReadCount().equals(vo.getReceiversCount())) {//全阅读
+                    iterator.remove();
+                }
+            }
+        }
+
+        if (data.getIsFinished() != null) {
+            Iterator<ThingCreatedListOneVO> iterator = thing.iterator();
+            while (iterator.hasNext()) {
+                ThingCreatedListOneVO vo = iterator.next();
+                if (data.getIsFinished() == 0 && vo.getFinishedCount() != 0) {//无人完成
+                    iterator.remove();
+                } else if (data.getIsFinished() == 1 && vo.getFinishedCount().equals(vo.getReceiversCount())) {//部分人完成
+                    iterator.remove();
+                } else if (data.getIsFinished() == 2 && !vo.getFinishedCount().equals(vo.getReceiversCount())) {//全部完成
+                    iterator.remove();
+                }
+            }
+        }
+
+        if (data.getTagId() != null) {
+            Iterator<ThingCreatedListOneVO> iterator = thing.iterator();
+            while (iterator.hasNext()) {
+                ThingCreatedListOneVO vo = iterator.next();
+                List<Tag> tags = thingMapper.getTagByThingId(vo.getId());
+                boolean hasTag = false;
+                for (Tag tag : tags) {
+                    if (tag.getId().equals(data.getTagId())) {
+                        hasTag = true;
+                    }
+                }
+
+                if (!hasTag) {
+                    iterator.remove();
+                }
+            }
+        }
+
+        for (ThingCreatedListOneVO vo : thing) {
+            List<Tag> tags = thingMapper.getTagByThingId(vo.getId());
+            String tagName = "";
+            for (Tag getTags : tags) {
+                tagName = tagName + getTags.getTagName() + ",";
+            }
+            tagName = tagName.substring(0, tagName.length() - 1);
+            vo.setTagName(tagName);
+        }
+
+        Page<ThingCreatedListOneVO> thing1 = new Page<>();
+        thing1.setCurrent(paramPage.getCurrent());
+        thing1.setSize(paramPage.getSize());
+        thing1.setTotal(thing.size());
+        if (paramPage.getCurrent() >= 1) {
+            thing1.setRecords(thing.subList((int) ((paramPage.getCurrent() - 1) * paramPage.getSize()),
+                    (int) (paramPage.getCurrent() * paramPage.getSize())));
+        } else {
+            thing1.setRecords(null);
+        }
+
+        return ResultUtil.success(thing1);
     }
 }
