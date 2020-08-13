@@ -521,7 +521,8 @@ public class ThingServiceImpl implements ThingService {
                 ThingCreatedListOneVO vo = iterator.next();
                 if (data.getIsRead() == 0 && vo.getReadCount() != 0) {//无人阅读
                     iterator.remove();
-                } else if (data.getIsRead() == 1 && vo.getReadCount().equals(vo.getReceiversCount())) {//部分阅读
+                } else if (data.getIsRead() == 1 &&
+                        (vo.getReadCount().equals(vo.getReceiversCount()) || vo.getReadCount().equals(0))) {//部分阅读
                     iterator.remove();
                 } else if (data.getIsRead() == 2 && !vo.getReadCount().equals(vo.getReceiversCount())) {//全阅读
                     iterator.remove();
@@ -529,19 +530,22 @@ public class ThingServiceImpl implements ThingService {
             }
         }
 
-        if (data.getIsFinished() != null) {
-            Iterator<ThingCreatedListOneVO> iterator = thing.iterator();
-            while (iterator.hasNext()) {
-                ThingCreatedListOneVO vo = iterator.next();
-                if (data.getIsFinished() == 0 && vo.getFinishedCount() != 0) {//无人完成
-                    iterator.remove();
-                } else if (data.getIsFinished() == 1 && vo.getFinishedCount().equals(vo.getReceiversCount())) {//部分人完成
-                    iterator.remove();
-                } else if (data.getIsFinished() == 2 && !vo.getFinishedCount().equals(vo.getReceiversCount())) {//全部完成
-                    iterator.remove();
-                }
+
+            if (data.getIsFinished() != null) {
+                    Iterator<ThingCreatedListOneVO> iterator = thing.iterator();
+                    while (iterator.hasNext()) {
+                        ThingCreatedListOneVO vo = iterator.next();
+                        if (data.getIsFinished() == 0 && vo.getFinishedCount() != 0) {//无人完成
+                            iterator.remove();
+                        } else if (data.getIsFinished() == 1 &&
+                                (vo.getFinishedCount().equals(vo.getReceiversCount()) || vo.getFinishedCount().equals(0))) {//部分人完成
+                            iterator.remove();
+                        } else if (data.getIsFinished() == 2 && !vo.getFinishedCount().equals(vo.getReceiversCount())) {//全部完成
+                            iterator.remove();
+                        }
+                    }
             }
-        }
+
 
         if (data.getTagId() != null) {
             Iterator<ThingCreatedListOneVO> iterator = thing.iterator();
@@ -577,7 +581,8 @@ public class ThingServiceImpl implements ThingService {
         thing1.setTotal(thing.size());
         if (paramPage.getCurrent() >= 1) {
             thing1.setRecords(thing.subList((int) ((paramPage.getCurrent() - 1) * paramPage.getSize()),
-                    (int) (paramPage.getCurrent() * paramPage.getSize())));
+                    (int) (paramPage.getCurrent() * paramPage.getSize()<=thing.size()?
+                            paramPage.getCurrent() * paramPage.getSize():thing.size())));
         } else {
             thing1.setRecords(null);
         }
