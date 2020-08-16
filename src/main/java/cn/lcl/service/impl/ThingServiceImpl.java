@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,7 +31,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -335,6 +338,11 @@ public class ThingServiceImpl implements ThingService {
         return ResultUtil.success(thingMapper.deleteThingById(thingId.getId()));
     }
 
+    @Override
+    public Result deleteJoinedThing(IdDTO thingId) {
+        User user = AuthcUtil.getUser();
+        return ResultUtil.success(thingReceiverMapper.deleteThingByUserId(thingId.getId(),user.getId()));
+    }
 
     @Override
     public Result listJoinedThings(SearchPageDTO<ThingReceiver> page) {
@@ -512,6 +520,7 @@ public class ThingServiceImpl implements ThingService {
         Page<ThingCreatedSearchVo> paramPage = page.getParamPage();
         ThingCreatedSearchVo data = page.getData();
 
+
         List<ThingCreatedListOneVO> thing = thingMapper.getCreatedThings(data, user.getId());
 
 
@@ -589,4 +598,86 @@ public class ThingServiceImpl implements ThingService {
 
         return ResultUtil.success(thing1);
     }
+
+
+    @Override
+    public Result listJoinedThings1(SearchPageDTO<ThingCreatedSearchVo> page) {
+        User user = AuthcUtil.getUser();
+        Page<ThingCreatedSearchVo> paramPage = page.getParamPage();
+        ThingCreatedSearchVo data = page.getData();
+        System.out.println(data);
+
+        List<ThingCreatedListOneVO> thing = thingMapper.getJoinedThings(data, user.getId());
+
+
+    /*    if (data.getIsRead() != null) {
+            Iterator<ThingCreatedListOneVO> iterator = thing.iterator();
+            while (iterator.hasNext()) {
+                ThingCreatedListOneVO vo = iterator.next();
+                System.out.println(vo);
+                if (data.getIsRead() == 0) {//未阅读
+                    iterator.remove();
+                } else if (data.getIsRead() == 1) {//已阅读
+                    iterator.remove();
+                }
+            }
+        }
+
+
+        if (data.getIsFinished() != null) {
+            Iterator<ThingCreatedListOneVO> iterator = thing.iterator();
+            while (iterator.hasNext()) {
+                ThingCreatedListOneVO vo = iterator.next();
+                if (data.getIsFinished() == 0) {//未完成
+                    iterator.remove();
+                } else if (data.getIsFinished() == 1) {//已完成
+                    iterator.remove();
+                }
+            }
+        }*/
+
+
+        if (data.getTagId() != null) {
+            Iterator<ThingCreatedListOneVO> iterator = thing.iterator();
+            while (iterator.hasNext()) {
+                ThingCreatedListOneVO vo = iterator.next();
+                List<Tag> tags = thingMapper.getTagByThingId(vo.getId());
+                boolean hasTag = false;
+                for (Tag tag : tags) {
+                    if (tag.getId().equals(data.getTagId())) {
+                        hasTag = true;
+                    }
+                }
+
+                if (!hasTag) {
+                    iterator.remove();
+                }
+            }
+        }
+
+        for (ThingCreatedListOneVO vo : thing) {
+            List<Tag> tags = thingMapper.getTagByThingId(vo.getId());
+            String tagName = "";
+            for (Tag getTags : tags) {
+                tagName = tagName + getTags.getTagName() + ",";
+            }
+            tagName = tagName.substring(0, tagName.length() - 1);
+            vo.setTagName(tagName);
+        }
+
+        Page<ThingCreatedListOneVO> thing1 = new Page<>();
+        thing1.setCurrent(paramPage.getCurrent());
+        thing1.setSize(paramPage.getSize());
+        thing1.setTotal(thing.size());
+        if (paramPage.getCurrent() >= 1) {
+            thing1.setRecords(thing.subList((int) ((paramPage.getCurrent() - 1) * paramPage.getSize()),
+                    (int) (paramPage.getCurrent() * paramPage.getSize()<=thing.size()?
+                            paramPage.getCurrent() * paramPage.getSize():thing.size())));
+        } else {
+            thing1.setRecords(null);
+        }
+
+        return ResultUtil.success(thing1);
+    }
+
 }

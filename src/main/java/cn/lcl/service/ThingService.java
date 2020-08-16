@@ -38,10 +38,15 @@ public interface ThingService {
     //  查看一个事务是否完成
     Result ifFinished(IdDTO idDTO);
 
-    //删除一条事务
+    //删除一条创建的事务
     Result deleteThing(IdDTO thingId);
+
+    //删除一条接收的事务
+    Result deleteJoinedThing(IdDTO thingId);
 
     //搜索创建事务
     Result listCreatedThings1(SearchPageDTO<ThingCreatedSearchVo> page);
+
+    Result listJoinedThings1(SearchPageDTO<ThingCreatedSearchVo> page);
 
 }

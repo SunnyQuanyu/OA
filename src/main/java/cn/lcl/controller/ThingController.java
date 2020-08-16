@@ -44,6 +44,10 @@ public class ThingController {
     public Result joinedList(@RequestBody @Valid SearchPageDTO<ThingReceiver> page, BindingResult result) {
         return ResultUtil.vaildFieldError(result, () -> thingService.listJoinedThings(page));
     }
+    @PostMapping("/joinedList1")
+    public Result joinedList1(@RequestBody @Valid SearchPageDTO<ThingCreatedSearchVo> page, BindingResult result) {
+        return ResultUtil.vaildFieldError(result, () -> thingService.listJoinedThings1(page));
+    }
 
     @PostMapping("/createdList")
     public Result createdList(@RequestBody @Valid SearchPageDTO<Thing> page, BindingResult result) {
@@ -58,6 +62,11 @@ public class ThingController {
     @PostMapping("/deleteThing")
     public Result deleteThing(@RequestBody @Valid IdDTO thingId, BindingResult result){
         return ResultUtil.vaildFieldError(result, () -> thingService.deleteThing(thingId));
+    }
+
+    @PostMapping("/deleteJoinedThing")
+    public Result deleteJoinedThing(@RequestBody @Valid IdDTO thingId, BindingResult result){
+        return ResultUtil.vaildFieldError(result, () -> thingService.deleteJoinedThing(thingId));
     }
     /**
      *

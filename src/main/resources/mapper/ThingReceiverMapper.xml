@@ -127,6 +127,12 @@
           and tr.delete_flg = 0
     </select>
 
+    <update id="deleteThingByUserId" parameterType="java.lang.Integer">
+    update thing_receiver
+    set delete_flg = 1
+    where thing_id = #{thingId}
+    and user_id = #{userId}
+</update>
 
 
 

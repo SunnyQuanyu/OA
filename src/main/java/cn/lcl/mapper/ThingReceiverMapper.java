@@ -23,4 +23,6 @@ public interface ThingReceiverMapper extends BaseMapper<ThingReceiver> {
     Page<ThingReceiver> selectThingReceiversByReceiverIdExceptTag(@Param("page") Page<?> page, @Param("userId") Integer userId, @Param("thingReceiver") ThingReceiver thingReceiver);
 
     List<Tag> getTagByReceiverId(@Param("userId") Integer userId,@Param("thingId") Integer thingId);
+
+    Integer deleteThingByUserId(Integer thingId,Integer userId);
 }

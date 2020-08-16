@@ -123,4 +123,33 @@
     </select>
 
 
+    <select id="getJoinedThings" resultType="cn.lcl.pojo.vo.ThingCreatedListOneVO">
+        select t.*,
+        u.real_name,
+        tr.has_read,
+        tr.has_finished
+        from thing t
+        left join thing_receiver tr on t.id = tr.thing_id
+        left join user u on t.creator_id = u.id
+        where tr.user_id = #{userId}
+        <if test="data.title != null">AND t.title LIKE CONCAT('%',#{data.title},'%')</if>
+        <if test="data.realName != null">AND u.real_name LIKE CONCAT('%',#{data.realName},'%')</if>
+        <if test="data.startTime != null">AND t.start_time &gt;= #{data.startTime}</if>
+        <if test="data.endTime != null">AND t.end_time &lt;= #{data.endTime}</if>
+        <if test="data.hasSendFile != null">AND t.has_send_file = #{data.hasSendFile}</if>
+        <if test="data.needAnswer != null">AND t.need_answer = #{data.needAnswer}</if>
+        <if test="data.needFileReply != null">AND t.need_file_reply = #{data.needFileReply}</if>
+        <if test="data.needFinish != null">AND t.need_finish = #{data.needFinish}</if>
+        <if test="data.isRead != null">AND tr.has_read = #{data.isRead}</if>
+        <if test="data.isFinished != null">AND tr.has_finished = #{data.isFinished}</if>
+        AND t.delete_flg = 0
+        AND tr.delete_flg = 0
+        AND u.delete_flg = 0
+        GROUP BY
+        t.id,
+        t.create_time
+        ORDER BY
+        t.create_time DESC
+    </select>
+
 </mapper>

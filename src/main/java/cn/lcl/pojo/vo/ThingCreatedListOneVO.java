@@ -17,5 +17,9 @@ public class ThingCreatedListOneVO extends Thing {
 
     private Integer finishedCount;
 
+    private Integer hasRead;
+
+    private Integer hasFinished;
+
 
 }
