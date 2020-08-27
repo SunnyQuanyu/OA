@@ -12,6 +12,8 @@ public class ThingCreatedSearchVo extends Thing {
 
     private Integer tagId;
 
+    private Integer teamId;
+
     private Integer isRead;
 
     private Integer isFinished;

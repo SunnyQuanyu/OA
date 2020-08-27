@@ -33,6 +33,15 @@ public class UserController {
     public Result getUser(@RequestBody IdDTO idDTO, BindingResult result) {
         return ResultUtil.vaildFieldError(result, () -> userService.getUser(idDTO.getId()));
     }
+    @PostMapping("/getUserMessage")
+    public Result getUserMessage(@RequestBody @Valid IdDTO userId, BindingResult result) {
+        return ResultUtil.vaildFieldError(result, () -> userService.getUserMessage(userId));
+    }
+
+    @PostMapping("/update")
+    public Result updateUser(@RequestBody User user) {
+        return userService.updateUser(user);
+    }
 
     @PostMapping("/addUsers")
     public Result addUsers(@RequestBody List<User> users) {
@@ -67,6 +76,10 @@ public class UserController {
     @PostMapping("/getUsers")
     public Result getUsers(@RequestBody @Valid SearchPageDTO<User> searchPageDTO, BindingResult result) {
         return ResultUtil.vaildFieldError(result, () -> userService.listUsers(searchPageDTO));
+    }
+    @PostMapping("/deleteUsers")
+    public Result deleteThing(@RequestBody @Valid IdDTO userId, BindingResult result){
+        return ResultUtil.vaildFieldError(result, () -> userService.deleteUsers(userId));
     }
 
     @PostMapping("/bindWX")

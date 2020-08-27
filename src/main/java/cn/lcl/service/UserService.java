@@ -1,5 +1,6 @@
 package cn.lcl.service;
 
+import cn.lcl.pojo.dto.IdDTO;
 import cn.lcl.pojo.dto.SearchPageDTO;
 import cn.lcl.pojo.SysUserRole;
 import cn.lcl.pojo.User;
@@ -16,6 +17,12 @@ public interface UserService {
 
     // 根据id获取某个用户信息
     Result getUser(Integer uid);
+
+    //根据用户ID获取用户信息
+    Result getUserMessage(IdDTO userId);
+
+    //更新用户信息
+    Result updateUser(User user);
 
     // 根据账号查询某个用户
     User queryUserByNumber(String userNumber);
@@ -37,5 +44,8 @@ public interface UserService {
 
     // 根据查询条件获取用户
     Result listUsers(SearchPageDTO<User> SearchPageDTO);
+
+    //删除某个用户
+    Result deleteUsers(IdDTO userId);
 
 }

@@ -1,5 +1,6 @@
 package cn.lcl.service.impl;
 
+import cn.lcl.pojo.dto.IdDTO;
 import cn.lcl.pojo.dto.SearchPageDTO;
 import cn.lcl.exception.MyException;
 import cn.lcl.exception.enums.ResultEnum;
@@ -72,6 +73,24 @@ public class UserServiceImpl implements UserService {
     public Result getUser(Integer uid) {
         User user = userMapper.selectById(uid);
         getRolesAndPermissions(user);
+        return ResultUtil.success(user);
+    }
+
+    @Override
+    public Result getUserMessage(IdDTO userId) {
+        User user = userMapper.selectUserMessage(userId.getId());
+        return ResultUtil.success(user);
+    }
+
+    @Override
+    public Result updateUser(User user) {
+        if (user.getId() == null) {
+            throw new MyException(ResultEnum.MISS_FIELD);
+        }
+        int i = userMapper.updateById(user);
+        if (i == 0) {
+            throw new MyException(ResultEnum.TEAM_UPDATE_FAILED);
+        }
         return ResultUtil.success(user);
     }
 
@@ -162,6 +181,11 @@ public class UserServiceImpl implements UserService {
 
     }
 
+
+    @Override
+    public Result deleteUsers(IdDTO userId) {
+        return ResultUtil.success(userMapper.deleteUsers(userId.getId()));
+    }
 
     private void getRolesAndPermissions(User user) {
         List<SysRole> userRoleList = sysUserRoleMapper.getUserRoleList(user.getId());

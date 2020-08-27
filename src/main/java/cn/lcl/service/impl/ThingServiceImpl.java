@@ -45,6 +45,7 @@ public class ThingServiceImpl implements ThingService {
 
     private final ThingMapper thingMapper;
     private final ThingTagMapper thingTagMapper;
+    private final ThingTeamMapper thingTeamMapper;
     private final UserMapper userMapper;
     private final ThingReceiverMapper thingReceiverMapper;
     private final ThingSendFileMapper thingSendFileMapper;
@@ -54,11 +55,12 @@ public class ThingServiceImpl implements ThingService {
     private final WxService wxService;
 
 
-    public ThingServiceImpl(ThingMapper thingMapper, ThingTagMapper thingTagMapper,
+    public ThingServiceImpl(ThingMapper thingMapper, ThingTagMapper thingTagMapper,ThingTeamMapper thingTeamMapper,
                             ThingReceiverMapper thingReceiverMapper, ThingSendFileMapper thingSendFileMapper,
                             ThingReplyFileMapper thingReplyFileMapper, QuestionService questionService, TeamMemberMapper teamMemberMapper, WxService wxService, UserMapper userMapper) {
         this.thingMapper = thingMapper;
         this.thingTagMapper = thingTagMapper;
+        this.thingTeamMapper = thingTeamMapper;
         this.thingReceiverMapper = thingReceiverMapper;
         this.thingSendFileMapper = thingSendFileMapper;
         this.thingReplyFileMapper = thingReplyFileMapper;
@@ -93,6 +95,19 @@ public class ThingServiceImpl implements ThingService {
             thingTagMapper.insert(thingTag);
         }
         System.out.print(thing.getTagId());
+
+        //6.插入事务与小组的对应关系
+        for (String teamId : thing.getTeamId()) {
+            // danger 判断receiver为空？
+            ThingTeam thingTeam = new ThingTeam();
+
+            thingTeam.setThingId(thing.getId());
+            thingTeam.setTeamId(teamId);
+
+
+            thingTeamMapper.insert(thingTeam);
+        }
+
         // 3.插入 事务-用户对应关系
 
         List<Integer> users = new ArrayList<>();
@@ -370,6 +385,27 @@ public class ThingServiceImpl implements ThingService {
 
         return ResultUtil.success(receiversThings1);
     }
+
+    @Override
+    public Result teamThing(IdDTO teamId) {
+        System.out.println(teamId.getId());
+        List<ThingCreatedListOneVO> things = thingMapper.getTeamThingByTeamId(teamId.getId());
+
+        for (ThingCreatedListOneVO things1 : things) {
+            List<Tag> Tags = thingMapper.getTagByThingId(things1.getId());
+            String tagName1 = "";
+            for (Tag getTags : Tags) {
+                System.out.println(getTags.getTagName());
+                tagName1 = tagName1 + getTags.getTagName() + ",";
+                System.out.println(tagName1);
+            }
+            tagName1 = tagName1.substring(0, tagName1.length() - 1);
+            things1.setTagName(tagName1);
+            System.out.println(tagName1);
+        }
+        return ResultUtil.success(things);
+    }
+
 
     @Transactional
     @Override

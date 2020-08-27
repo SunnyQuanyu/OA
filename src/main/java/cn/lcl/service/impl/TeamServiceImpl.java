@@ -12,6 +12,7 @@ import cn.lcl.pojo.Team;
 import cn.lcl.pojo.TeamMember;
 import cn.lcl.pojo.User;
 import cn.lcl.pojo.result.Result;
+import cn.lcl.pojo.vo.ThingCreatedListOneVO;
 import cn.lcl.service.TeamService;
 import cn.lcl.util.AuthcUtil;
 import cn.lcl.util.ResultUtil;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -141,9 +143,31 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    public Result listCreatedTeams1(SearchPageDTO<Team> page) {
+        User user = AuthcUtil.getUser();
+        Team data = page.getData();
+        List<Team> team1 = teamMapper.getCreatedTeams(data, user.getId());
+        return ResultUtil.success(team1);
+    }
+
+    @Override
+    public Result listJoinedTeams1(SearchPageDTO<Team> page) {
+        User user = AuthcUtil.getUser();
+        Team data = page.getData();
+        List<Team> team1 = teamMapper.getJoinedTeams(data, user.getId());
+        return ResultUtil.success(team1);
+    }
+
+    @Override
     public Result listJoinedTeams() {
         User user = AuthcUtil.getUser();
-        return ResultUtil.success(teamMapper.selectTeamListByMemberId(user.getId()));
+        List<Team> teams = teamMapper.selectTeamListByMemberId(user.getId());
+
+     /*   for (Team team1 : teams) {
+            Team team2 = teamMapper.selectTeamCreatorName(team1.getCreatorId());
+            team1.setRealName(team2.getRealName());
+        }*/
+        return ResultUtil.success(teams);
     }
 
     // 一下为此类代码分离

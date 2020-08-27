@@ -41,4 +41,10 @@ public interface TeamService {
     // 获取所有所在的小组
     Result listJoinedTeams();
 
+    //搜索创建小组
+    Result listCreatedTeams1(SearchPageDTO<Team> page);
+
+    //搜索加入小组
+    Result listJoinedTeams1(SearchPageDTO<Team> page);
+
 }

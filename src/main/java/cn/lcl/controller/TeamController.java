@@ -48,9 +48,19 @@ public class TeamController {
         return service.listCreatedTeams();
     }
 
+    @PostMapping("/createdList1")
+    public Result createdList1(@RequestBody @Valid SearchPageDTO<Team> page, BindingResult result) {
+        return ResultUtil.vaildFieldError(result, () -> service.listCreatedTeams1(page));
+    }
+
     @PostMapping("/joinedList")
     public Result joinedList() {
         return service.listJoinedTeams();
+    }
+
+    @PostMapping("/joinedList1")
+    public Result joinedList1(@RequestBody @Valid SearchPageDTO<Team> page, BindingResult result) {
+        return ResultUtil.vaildFieldError(result, () -> service.listJoinedTeams1(page));
     }
 
     @PostMapping("/update")

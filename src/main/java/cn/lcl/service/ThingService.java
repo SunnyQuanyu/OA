@@ -47,6 +47,10 @@ public interface ThingService {
     //搜索创建事务
     Result listCreatedThings1(SearchPageDTO<ThingCreatedSearchVo> page);
 
+    //搜索日程表事务
     Result listJoinedThings1(SearchPageDTO<ThingCreatedSearchVo> page);
+
+    //获取小组事务
+    Result teamThing(IdDTO teamId);
 
 }

@@ -19,13 +19,57 @@
           and t.id = #{teamId}
     </select>
     <select id="selectTeamListByMemberId" resultType="cn.lcl.pojo.Team">
-        select t.*
+        select t.*,u1.real_name
         from oa.team as t
                  left join oa.team_member as tm on t.id = tm.team_id
                  left join oa.user as u on u.id = tm.user_id
+                 left join oa.user as u1 on u1.id = t.creator_id
         where t.delete_flg = 0
           and tm.delete_flg = 0
           and u.delete_flg = 0
           and u.id = #{memberId}
+    </select>
+    <select id="selectTeamCreatorName" resultType="cn.lcl.pojo.Team">
+        select t.*,u.real_name
+        from oa.team as t
+                 left join oa.user as u on u.id = t.creator_id
+        where t.delete_flg = 0
+          and u.delete_flg = 0
+          and u.id = #{creatorId}
+    </select>
+
+    <select id="getCreatedTeams" resultType="cn.lcl.pojo.Team">
+        SELECT t.*
+        FROM team AS t
+        WHERE t.creator_id = #{userId}
+        <if test="data.teamName != null">AND t.team_name LIKE CONCAT('%',#{data.teamName},'%')</if>
+        <if test="data.publicState != null">AND t.public_state = #{data.publicState}</if>
+        <if test="data.createTime != null">AND t.create_time &gt;= #{data.createTime}</if>
+        <if test="data.updateTime != null">AND t.update_time &lt;= #{data.updateTime}</if>
+        AND t.delete_flg = 0
+        GROUP BY
+        t.id,
+        t.create_time
+        ORDER BY
+        t.create_time DESC
+    </select>
+    <select id="getJoinedTeams" resultType="cn.lcl.pojo.Team">
+        select t.*,u1.real_name
+        from oa.team as t
+        left join oa.team_member as tm on t.id = tm.team_id
+        left join oa.user as u1 on u1.id = t.creator_id
+        where t.delete_flg = 0
+        and tm.delete_flg = 0
+        and u1.delete_flg = 0
+        and tm.user_id = #{memberId}
+        <if test="data.teamName != null">AND t.team_name LIKE CONCAT('%',#{data.teamName},'%')</if>
+        <if test="data.publicState != null">AND t.public_state = #{data.publicState}</if>
+        <if test="data.createTime != null">AND t.create_time &gt;= #{data.createTime}</if>
+        <if test="data.updateTime != null">AND t.update_time &lt;= #{data.updateTime}</if>
+        GROUP BY
+        t.id,
+        t.create_time
+        ORDER BY
+        t.create_time DESC
     </select>
 </mapper>

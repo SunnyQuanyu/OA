@@ -35,4 +35,5 @@ public interface ThingMapper extends BaseMapper<Thing> {
                                                  @Param("userId") Integer userId);
     List<ThingCreatedListOneVO> getJoinedThings(@Param("data") ThingCreatedSearchVo searchVo,
                                                  @Param("userId") Integer userId);
+    List<ThingCreatedListOneVO> getTeamThingByTeamId(@Param("teamId") Integer teamId);
 }

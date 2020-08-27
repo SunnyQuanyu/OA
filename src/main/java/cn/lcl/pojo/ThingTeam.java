@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
@@ -13,12 +12,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * team
+ * thing_receiver
  *
- * @author
+ * @author lqy
  */
 @Data
-public class Team implements Serializable {
+public class ThingTeam implements Serializable{
     /**
      * 自增Id
      */
@@ -26,21 +25,18 @@ public class Team implements Serializable {
     private Integer id;
 
     /**
-     * 小组名称
+     * 事务id
      */
-    @NotNull(message = "小组名称不能为空")
-    private String teamName;
+    @NotNull(message = "thingId not null")
+    private Integer thingId;
 
     /**
-     * 小组管理者在user表的id
+     * 接收小组在team表对应的Id
      */
-    private Integer managerId;
+    @NotNull(message = "teamId not null")
+    private String teamId;
 
-    /**
-     * 公有标识1；私有标识0
-     */
-    @NotNull(message = "是否为共有标志不能为空")
-    private Byte publicState;
+
 
     /**
      * 创建时间
@@ -54,9 +50,6 @@ public class Team implements Serializable {
     @TableField(fill = FieldFill.INSERT)
     private Integer creatorId;
 
-    // 发送人的realName
-    @TableField(exist = false)
-    private String realName;
     /**
      * 更新时间
      */
@@ -76,9 +69,6 @@ public class Team implements Serializable {
     @JsonIgnore
     private Integer deleteFlg;
 
-    // 一个小组的成员可能很多，这里直接分页
-    @TableField(exist = false, select = false)
-    private Page<User> membersPage;
 
     private static final long serialVersionUID = 1L;
 }

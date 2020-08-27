@@ -152,4 +152,21 @@
         t.create_time DESC
     </select>
 
+
+    <select id="getTeamThingByTeamId" resultType="cn.lcl.pojo.vo.ThingCreatedListOneVO">
+        select t.*,
+        u.real_name
+        from thing t
+        left join thing_team tt on t.id = tt.thing_id
+        left join user u on t.creator_id = u.id
+        where tt.team_id = #{teamId}
+        AND t.delete_flg = 0
+        AND tt.delete_flg = 0
+        AND u.delete_flg = 0
+        GROUP BY
+        t.id,
+        t.create_time
+        ORDER BY
+        t.create_time DESC
+    </select>
 </mapper>

@@ -49,6 +49,11 @@ public class ThingController {
         return ResultUtil.vaildFieldError(result, () -> thingService.listJoinedThings1(page));
     }
 
+    @PostMapping("/teamThing")
+    public Result teamThing(@RequestBody @Valid IdDTO teamId, BindingResult result) {
+        return ResultUtil.vaildFieldError(result, () -> thingService.teamThing(teamId));
+    }
+
     @PostMapping("/createdList")
     public Result createdList(@RequestBody @Valid SearchPageDTO<Thing> page, BindingResult result) {
         return ResultUtil.vaildFieldError(result, () -> thingService.listCreatedThings(page));
