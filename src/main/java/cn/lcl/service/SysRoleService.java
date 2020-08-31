@@ -2,6 +2,7 @@ package cn.lcl.service;
 
 import cn.lcl.pojo.SysRole;
 import cn.lcl.pojo.SysRolePermission;
+import cn.lcl.pojo.dto.IdDTO;
 import cn.lcl.pojo.result.Result;
 
 public interface SysRoleService {
@@ -20,4 +21,7 @@ public interface SysRoleService {
 
     // 获得一个角色
     Result getRole(SysRole sysRole);
+
+    //删除一个角色
+    Result deleteRole(IdDTO roleId);
 }

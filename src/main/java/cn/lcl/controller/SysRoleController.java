@@ -2,6 +2,7 @@ package cn.lcl.controller;
 
 import cn.lcl.pojo.SysRole;
 import cn.lcl.pojo.SysRolePermission;
+import cn.lcl.pojo.dto.IdDTO;
 import cn.lcl.pojo.result.Result;
 import cn.lcl.service.SysRoleService;
 import cn.lcl.util.ResultUtil;
@@ -48,4 +49,8 @@ public class SysRoleController {
         return sysRoleService.getRole(sysRole);
     }
 
+    @PostMapping("/deleteRole")
+    public Result deleteThing(@RequestBody @Valid IdDTO roleId, BindingResult result){
+        return ResultUtil.vaildFieldError(result, () -> sysRoleService.deleteRole(roleId));
+    }
 }

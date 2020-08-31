@@ -51,4 +51,31 @@
             or rp.delete_flg IS NULL)
           and r.delete_flg = 0
     </select>
+
+    <select id="getPermissionList" resultType="cn.lcl.pojo.SysPermission">
+        select s.*
+        from oa.sys_permission as s
+        where s.delete_flg = 0
+
+
+        <if test="data.permissionName != null">AND s.permission_name LIKE CONCAT('%',#{data.permissionName},'%')</if>
+        <if test="data.createTime != null">AND s.create_time &gt;= #{data.createTime}</if>
+        GROUP BY
+        s.id,
+        s.create_time
+        ORDER BY
+        s.create_time DESC
+    </select>
+
+    <update id="deletePermission" parameterType="java.lang.Integer">
+    update oa.sys_permission
+    set delete_flg = 1
+    where id = #{permissionId}
+</update>
+
+    <update id="deleteRole" parameterType="java.lang.Integer">
+    update oa.sys_role
+    set delete_flg = 1
+    where id = #{roleId}
+    </update>
 </mapper>

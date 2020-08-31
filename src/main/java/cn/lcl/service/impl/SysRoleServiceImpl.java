@@ -8,6 +8,7 @@ import cn.lcl.mapper.SysRolePermissionMapper;
 import cn.lcl.pojo.SysPermission;
 import cn.lcl.pojo.SysRole;
 import cn.lcl.pojo.SysRolePermission;
+import cn.lcl.pojo.dto.IdDTO;
 import cn.lcl.pojo.result.Result;
 import cn.lcl.service.SysRoleService;
 import cn.lcl.util.ResultUtil;
@@ -79,5 +80,11 @@ public class SysRoleServiceImpl implements SysRoleService {
     @Override
     public Result getRole(SysRole sysRole) {
         return ResultUtil.success(sysRoleMapper.selectById(sysRole.getId()));
+    }
+
+    @Override
+    public Result deleteRole(IdDTO roleId) {
+
+        return ResultUtil.success(sysRoleMapper.deleteRole(roleId.getId()));
     }
 }

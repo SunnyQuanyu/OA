@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.lcl.mapper.SysPermissionMapper">
+    <resultMap id="RolePermission" type="cn.lcl.pojo.SysRole">
+        <result property="id" column="rid"/>
+        <result property="roleName" column="rname"/>
+        <result property="createTime" column="rct"/>
+        <result property="creatorId" column="rcid"/>
+        <result property="updateTime" column="ruct"/>
+        <result property="updatorId" column="ruid"/>
+        <collection property="permissionList" ofType="cn.lcl.pojo.SysPermission">
+            <result property="id" column="pid"/>
+            <result property="permissionName" column="pname"/>
+            <result property="frontRoute" column="proute"/>
+        </collection>
+    </resultMap>
+
+</mapper>
