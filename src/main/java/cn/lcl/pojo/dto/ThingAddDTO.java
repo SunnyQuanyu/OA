@@ -16,10 +16,10 @@ import java.util.List;
 public class ThingAddDTO extends Thing {
 
     // 是否通过小组录入人员，如果不使用小组，则使用receiverIds
-    @NotNull(message = "userTeam not null")
-    private Boolean userTeam;
+//    @NotNull(message = "userTeam not null")
+//    private Boolean userTeam;
 
-    private String[] teamId;
+    private String[] teamId = {"",null};
 
     private Integer[] receiverIds;
 

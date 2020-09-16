@@ -38,4 +38,20 @@
           and r.delete_flg = 0
           and u.id = #{uid};
     </select>
+
+    <select id="getUsersIdByRoleId" resultType="cn.lcl.pojo.SysUserRole">
+        select s.*
+        from sys_user_role s
+        where s.role_id = #{roleId}
+          and s.delete_flg = 0
+        order by s.create_time desc
+    </select>
+
+    <select id="selectUsersIdByRoleId" resultType="java.lang.Integer">
+        select s.user_id
+        from sys_user_role s
+        where s.role_id = #{roleId}
+          and s.delete_flg = 0
+        order by s.create_time desc
+    </select>
 </mapper>

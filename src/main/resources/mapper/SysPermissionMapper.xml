@@ -15,4 +15,14 @@
         </collection>
     </resultMap>
 
+    <select id="selectUsersIdByPermissionId" resultType="java.lang.Integer">
+        select s.user_id
+        from sys_user_role s
+        left join sys_role_permission srp on srp.role_id = s.role_id
+        where srp.permission_id = #{permissionId}
+          and s.delete_flg = 0
+          and srp.delete_flg = 0
+        order by s.create_time desc
+    </select>
+
 </mapper>

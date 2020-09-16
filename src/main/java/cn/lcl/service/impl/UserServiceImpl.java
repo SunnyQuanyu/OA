@@ -26,15 +26,24 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Service
+@CrossOrigin
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -42,6 +51,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private SysUserRoleMapper sysUserRoleMapper;
+
+
+    private JavaMailSender mailSender;
 
 
     @Transactional
@@ -92,6 +104,18 @@ public class UserServiceImpl implements UserService {
             throw new MyException(ResultEnum.TEAM_UPDATE_FAILED);
         }
         return ResultUtil.success(user);
+    }
+
+    @Override
+    public Result updatePassWord(User user) {
+        User updateUser = userMapper.selectUserByNumber(user.getNumber());
+        updateUser.setPassword(user.getPassword());
+
+        int i = userMapper.updateById(updateUser);
+        if (i == 0) {
+            throw new MyException(ResultEnum.TEAM_UPDATE_FAILED);
+        }
+        return ResultUtil.success(updateUser);
     }
 
     @Override
@@ -196,4 +220,35 @@ public class UserServiceImpl implements UserService {
         }
         user.setPermissionSet(sysPermissions);
     }
+
+
+    /*@Value("${spring.mail.username}")
+    public String fromEmail;*/
+   /* @Autowired*/
+/*    private JavaMailSender mailSender;*/
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    /**
+     * 给邮箱发送验证码
+     *
+
+     * @return
+     */
+    @Override
+
+    public Result sendEmailCode( String email) {
+        //生成随机验证码
+        String checkCode = String.valueOf(new Random().nextInt(899999) + 100000);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("1519804390@qq.com");
+        message.setTo(email);
+        message.setSubject("这是一个邮件主题——系统邮件");
+        message.setText("您正在修改您的密码，本次验证码为：" + checkCode + "\n 如非本人操作，请忽略！谢谢");
+        mailSender.send(message);
+        logger.info("邮件发送成功");
+        return ResultUtil.success(checkCode);
+
+    }
+
 }

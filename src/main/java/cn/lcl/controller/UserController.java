@@ -24,6 +24,7 @@ public class UserController {
     @Autowired
     WxService wxService;
 
+
     @PostMapping
     public Result getUser() {
         return userService.getUser();
@@ -41,6 +42,11 @@ public class UserController {
     @PostMapping("/update")
     public Result updateUser(@RequestBody User user) {
         return userService.updateUser(user);
+    }
+
+    @PostMapping("/updatePassWaord")
+    public Result updatePassWaord(@RequestBody User user) {
+        return userService.updatePassWord(user);
     }
 
     @PostMapping("/addUsers")
@@ -86,5 +92,17 @@ public class UserController {
     public Result bindWX(@RequestParam String code) {
         return wxService.updateUserOpenid(code);
     }
+
+
+    /**
+     * 忘记密码模块的发送邮箱验证码
+     * 传入邮箱即可如"toEmail":"123@qq.com"
+
+     */
+    @PostMapping("/sendEmail")
+    public Result sendEmail(@RequestParam String email) {
+        return  userService.sendEmailCode(email);
+    }
+
 
 }

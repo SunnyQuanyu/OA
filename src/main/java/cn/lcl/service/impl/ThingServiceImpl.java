@@ -82,10 +82,9 @@ public class ThingServiceImpl implements ThingService {
 
 
         if (thing.getTagId() == null || thing.getTagId().length == 0) {
-            throw new MyException(ResultEnum.THING_RECEIVERIDS_NOT_NULL);
+            throw new MyException(ResultEnum.THING_TAGIDS_NOT_NULL);
         }
         for (String tagId : thing.getTagId()) {
-            // danger 判断receiver为空？
             ThingTag thingTag = new ThingTag();
 
             thingTag.setThingId(thing.getId());
@@ -97,50 +96,69 @@ public class ThingServiceImpl implements ThingService {
         System.out.print(thing.getTagId());
 
         //6.插入事务与小组的对应关系
-        for (String teamId : thing.getTeamId()) {
-            // danger 判断receiver为空？
-            ThingTeam thingTeam = new ThingTeam();
+        String[] teamId1 = thing.getTeamId();
+        System.out.println(teamId1[0]);
+        if(teamId1[0] != null && !teamId1[0].equals("null")) {
+            for (String teamId : thing.getTeamId()) {
+                // danger 判断receiver为空？
+                ThingTeam thingTeam = new ThingTeam();
 
-            thingTeam.setThingId(thing.getId());
-            thingTeam.setTeamId(teamId);
+                    thingTeam.setThingId(thing.getId());
+                    thingTeam.setTeamId(teamId);
+                    thingTeamMapper.insert(thingTeam);
+
+            }
 
 
-            thingTeamMapper.insert(thingTeam);
-        }
+            // 3.插入 事务-用户对应关系
 
-        // 3.插入 事务-用户对应关系
+            List<Integer> users = new ArrayList<>();
+            for (String teamId : thing.getTeamId()) {
 
-        List<Integer> users = new ArrayList<>();
-        for (String teamId : thing.getTeamId()) {
-            List<User> teamUsers = teamMemberMapper.selectUsersByTeamId(teamId);
-            for (User user : teamUsers) {
-                if (!users.contains(user.getId())) {
-                    users.add(user.getId());
+                    List<User> teamUsers = teamMemberMapper.selectUsersByTeamId(teamId);
+                    for (User user : teamUsers) {
+                        if (!users.contains(user.getId())) {
+                            users.add(user.getId());
+                        }
+                    }
+
+            }
+
+
+            for (Integer i = 0; i < users.size(); i++) {
+                for (Integer receiverId : thing.getReceiverIds()) {
+                    if (!users.contains(receiverId)) {
+                        users.add(receiverId);
+                    }
                 }
             }
-        }
 
 
-        for (Integer i = 0; i < users.size(); i++) {
+            long startTime = System.currentTimeMillis();// 获取开始时间
+            //           ExecutorService executorService = Executors.newFixedThreadPool(teamUsers.size());
+            List<Future<Boolean>> futures = new ArrayList<>();
+
+            ThingReceiver thingReceiver = new ThingReceiver();
+            for (Integer j : users) {
+                thingReceiver.setHasRead("0");
+                thingReceiver.setHasFinished("0");
+                thingReceiver.setHasSendNote("0");
+                thingReceiver.setThingId(thing.getId());
+                thingReceiver.setUserId(j);
+                thingReceiverMapper.insert(thingReceiver);
+            }
+        } else {
+            //未选择小组时插入用户
             for (Integer receiverId : thing.getReceiverIds()) {
-                if (!users.contains(receiverId)) {
-                    users.add(receiverId);
-                }
+                // danger 判断receiver为空？
+                ThingReceiver thingReceiver = new ThingReceiver();
+                thingReceiver.setHasRead("0");
+                thingReceiver.setHasFinished("0");
+                thingReceiver.setHasSendNote("0");
+                thingReceiver.setThingId(thing.getId());
+                thingReceiver.setUserId(receiverId);
+                thingReceiverMapper.insert(thingReceiver);
             }
-        }
-
-        long startTime = System.currentTimeMillis();// 获取开始时间
-        //           ExecutorService executorService = Executors.newFixedThreadPool(teamUsers.size());
-        List<Future<Boolean>> futures = new ArrayList<>();
-
-        ThingReceiver thingReceiver = new ThingReceiver();
-        for (Integer j : users) {
-            thingReceiver.setHasRead("0");
-            thingReceiver.setHasFinished("0");
-            thingReceiver.setHasSendNote("0");
-            thingReceiver.setThingId(thing.getId());
-            thingReceiver.setUserId(j);
-            thingReceiverMapper.insert(thingReceiver);
         }
 
 
@@ -150,7 +168,9 @@ public class ThingServiceImpl implements ThingService {
                     } else {
                         thingReceiverMapper.insert(thingReceiver);
                     }*/
-
+        long startTime = System.currentTimeMillis();// 获取开始时间
+        //           ExecutorService executorService = Executors.newFixedThreadPool(teamUsers.size());
+        List<Future<Boolean>> futures = new ArrayList<>();
 
         for (Future<Boolean> future : futures) {
             try {
@@ -169,31 +189,6 @@ public class ThingServiceImpl implements ThingService {
 
 
 
-   /*     else {
-            if (thing.getReceiverIds() == null || thing.getReceiverIds().length == 0) {
-                throw new MyException(ResultEnum.THING_RECEIVERIDS_NOT_NULL);
-            }
-
-
-
-            for (Integer receiverId : thing.getReceiverIds()) {
-                // danger 判断receiver为空？
-                ThingReceiver thingReceiver = new ThingReceiver();
-                thingReceiver.setHasRead("0");
-                thingReceiver.setHasFinished("0");
-                thingReceiver.setHasSendNote("0");
-                thingReceiver.setThingId(thing.getId());
-
-                thingReceiver.setUserId(receiverId);
-                User user = userMapper.selectById(receiverId);
-                if (user.getWxOpenId() != null) {
-                    if (wxService.sendThingNote(user.getWxOpenId(), thing, thingReceiver)) {
-                        thingReceiver.setHasSendNote("1");
-                    }
-                }
-                thingReceiverMapper.insert(thingReceiver);
-            }
-        }*/
         // 4.插入 事务-文件对应关系
         if ("1".equals(thing.getHasSendFile())) {
             for (MultipartFile file : thing.getFiles()) {

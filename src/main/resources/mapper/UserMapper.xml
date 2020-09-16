@@ -13,4 +13,11 @@
         where u.delete_flg = 0
           and u.id = #{userId}
     </select>
+
+    <select id="selectUserByNumber" resultType="cn.lcl.pojo.User">
+        select u.*
+        from oa.user as u
+        where u.delete_flg = 0
+          and u.number = #{number}
+    </select>
 </mapper>

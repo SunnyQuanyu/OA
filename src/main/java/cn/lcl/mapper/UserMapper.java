@@ -11,4 +11,6 @@ public interface UserMapper extends BaseMapper<User> {
     Integer deleteUsers(Integer userId);
 
     User selectUserMessage(Integer userId);
+
+    User selectUserByNumber(String number);
 }

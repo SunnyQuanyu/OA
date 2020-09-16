@@ -3,6 +3,7 @@ package cn.lcl.controller;
 import cn.lcl.pojo.SysRole;
 import cn.lcl.pojo.SysRolePermission;
 import cn.lcl.pojo.dto.IdDTO;
+import cn.lcl.pojo.dto.RoleAddUsersDTO;
 import cn.lcl.pojo.result.Result;
 import cn.lcl.service.SysRoleService;
 import cn.lcl.util.ResultUtil;
@@ -52,5 +53,15 @@ public class SysRoleController {
     @PostMapping("/deleteRole")
     public Result deleteThing(@RequestBody @Valid IdDTO roleId, BindingResult result){
         return ResultUtil.vaildFieldError(result, () -> sysRoleService.deleteRole(roleId));
+    }
+
+    @PostMapping("/addUsers")
+    public Result addTeam(@RequestBody @Valid RoleAddUsersDTO roleUsers, BindingResult result) {
+        return ResultUtil.vaildFieldError(result, () -> sysRoleService.saveRoleUsers(roleUsers));
+    }
+
+    @PostMapping("/update")
+    public Result update(@RequestBody SysRole role) {
+        return sysRoleService.updateRole(role);
     }
 }

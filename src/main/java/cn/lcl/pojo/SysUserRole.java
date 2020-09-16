@@ -34,7 +34,7 @@ public class SysUserRole implements Serializable {
      * role表id
      */
     @NotNull
-    private Integer roleId;
+    private String roleId;
 
     /**
      * 创建时间

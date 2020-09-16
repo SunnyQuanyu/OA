@@ -6,6 +6,7 @@ import cn.lcl.pojo.SysUserRole;
 import cn.lcl.pojo.User;
 import cn.lcl.pojo.result.Result;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface UserService {
@@ -23,6 +24,9 @@ public interface UserService {
 
     //更新用户信息
     Result updateUser(User user);
+
+    //忘记密码，进行密码更新
+    Result updatePassWord(User user);
 
     // 根据账号查询某个用户
     User queryUserByNumber(String userNumber);
@@ -47,5 +51,8 @@ public interface UserService {
 
     //删除某个用户
     Result deleteUsers(IdDTO userId);
+
+    //发送邮件
+    Result sendEmailCode(String email);
 
 }

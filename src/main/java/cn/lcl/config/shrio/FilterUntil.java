@@ -13,7 +13,10 @@ public class FilterUntil {
 
     public static boolean onAccessDenied(HttpServletResponse response, ResultEnum resultEnum) throws IOException {
         response.setHeader("Access-Control-Allow-Origin", "*");
+
         response.setHeader("Content-Type", "application/json");
+
+
         response.setStatus(HttpServletResponse.SC_OK);
         response.setCharacterEncoding("UTF-8");
         PrintWriter writer = response.getWriter();

@@ -14,4 +14,5 @@ public class Result {
 
     private Object data;
 
+
 }

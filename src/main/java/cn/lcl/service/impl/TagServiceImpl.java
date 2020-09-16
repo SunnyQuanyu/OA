@@ -2,7 +2,11 @@ package cn.lcl.service.impl;
 
 import cn.lcl.exception.MyException;
 import cn.lcl.exception.enums.ResultEnum;
+import cn.lcl.mapper.SysPermissionMapper;
+import cn.lcl.mapper.SysUserRoleMapper;
 import cn.lcl.mapper.TagMapper;
+import cn.lcl.pojo.SysPermission;
+import cn.lcl.pojo.SysUserRole;
 import cn.lcl.pojo.Tag;
 import cn.lcl.pojo.User;
 import cn.lcl.pojo.result.Result;
@@ -24,6 +28,10 @@ public class TagServiceImpl implements TagService {
 
     @Autowired
     private TagMapper tagMapper;
+    @Autowired
+    private SysUserRoleMapper sysUserRoleMapper;
+    @Autowired
+    private SysPermissionMapper sysPermissionMapper;
 
     @Override
     public Result saveTag(Tag tag) {
@@ -83,10 +91,19 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Result listCreatedTags() {
-        return ResultUtil.success(
-                new LambdaQueryChainWrapper<>(tagMapper)
-                        .eq(Tag::getManagerId, AuthcUtil.getUser().getId())
-                        .list());
+        String permissionId = "16";
+        List<Integer> userId = sysPermissionMapper.selectUsersIdByPermissionId(permissionId);
+        if(userId.contains(AuthcUtil.getUser().getId())) {
+            return ResultUtil.success(
+                    new LambdaQueryChainWrapper<>(tagMapper)
+                            .eq(Tag::getManagerId, AuthcUtil.getUser().getId()).or().eq(Tag::getPublicState, 1)
+                            .list());
+        }else{
+            return ResultUtil.success(
+                    new LambdaQueryChainWrapper<>(tagMapper)
+                            .eq(Tag::getManagerId, AuthcUtil.getUser().getId())
+                            .list());
+        }
     }
 
     @Override

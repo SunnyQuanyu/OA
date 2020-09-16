@@ -5,12 +5,13 @@ import cn.lcl.exception.enums.ResultEnum;
 import cn.lcl.mapper.SysPermissionMapper;
 import cn.lcl.mapper.SysRoleMapper;
 import cn.lcl.mapper.SysRolePermissionMapper;
-import cn.lcl.pojo.SysPermission;
-import cn.lcl.pojo.SysRole;
-import cn.lcl.pojo.SysRolePermission;
+import cn.lcl.mapper.SysUserRoleMapper;
+import cn.lcl.pojo.*;
 import cn.lcl.pojo.dto.IdDTO;
+import cn.lcl.pojo.dto.RoleAddUsersDTO;
 import cn.lcl.pojo.result.Result;
 import cn.lcl.service.SysRoleService;
+import cn.lcl.util.AuthcUtil;
 import cn.lcl.util.ResultUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -18,6 +19,10 @@ import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapp
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class SysRoleServiceImpl implements SysRoleService {
@@ -30,6 +35,9 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     @Autowired
     SysRolePermissionMapper sysRolePermissionMapper;
+
+    @Autowired
+    SysUserRoleMapper sysUserRoleMapper;
 
     @Transactional
     @Override
@@ -86,5 +94,46 @@ public class SysRoleServiceImpl implements SysRoleService {
     public Result deleteRole(IdDTO roleId) {
 
         return ResultUtil.success(sysRoleMapper.deleteRole(roleId.getId()));
+    }
+
+
+    @Override
+    public Result saveRoleUsers(RoleAddUsersDTO roleUsers) {
+        if(roleUsers.getRoleId() != null) {
+            for (String roleId : roleUsers.getRoleId()) {
+                List<SysUserRole> getUsersIdByRoleId= sysUserRoleMapper.getUsersIdByRoleId(roleId);
+                List<Integer> users = new ArrayList<>();
+                for(SysUserRole userRole : getUsersIdByRoleId){
+                    users.add(userRole.getUserId());
+                }
+                if(roleUsers.getUserIdList().size() > 0) {
+                    for (Integer userId : roleUsers.getUserIdList()) {
+
+                        if (!users.contains(userId)) {
+                            SysUserRole userRole = new SysUserRole();
+                            userRole.setRoleId(roleId);
+                            userRole.setUserId(userId);
+                            int insert = sysUserRoleMapper.insert(userRole);
+                            if (insert != 1) {
+                                throw new MyException(ResultEnum.TEAM_MEMBER_INSERT_ERROR);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return ResultUtil.success(roleUsers.getUserIdList().size());
+    }
+
+    @Override
+    public Result updateRole(SysRole role) {
+        if (role.getId() == null) {
+            throw new MyException(ResultEnum.MISS_FIELD);
+        }
+        int i = sysRoleMapper.updateById(role);
+        if (i == 0) {
+            throw new MyException(ResultEnum.TEAM_UPDATE_FAILED);
+        }
+        return ResultUtil.success(role);
     }
 }

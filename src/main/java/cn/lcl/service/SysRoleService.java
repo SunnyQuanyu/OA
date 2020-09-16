@@ -3,7 +3,9 @@ package cn.lcl.service;
 import cn.lcl.pojo.SysRole;
 import cn.lcl.pojo.SysRolePermission;
 import cn.lcl.pojo.dto.IdDTO;
+import cn.lcl.pojo.dto.RoleAddUsersDTO;
 import cn.lcl.pojo.result.Result;
+import org.apache.ibatis.annotations.Param;
 
 public interface SysRoleService {
 
@@ -24,4 +26,15 @@ public interface SysRoleService {
 
     //删除一个角色
     Result deleteRole(IdDTO roleId);
+
+    // 保存批量设置角色的角色和用户关系
+    Result saveRoleUsers(RoleAddUsersDTO roleUsers);
+
+    /**
+     * 只更新基本信息
+     *
+     * @param role 要包含id属性
+     * @return 修改后的result
+     */
+    Result updateRole(SysRole role);
 }
