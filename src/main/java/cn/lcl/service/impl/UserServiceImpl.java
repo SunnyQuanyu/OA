@@ -22,9 +22,11 @@ import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapp
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.ShiroException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -133,9 +136,13 @@ public class UserServiceImpl implements UserService {
             Subject subject = SecurityUtils.getSubject();
 
             subject.login(token); // 执行登录的方法，如果没有异常说明没问题了
-
+           // subject.getSession();
+        //    subject.getSession(true).setTimeout(10);
             User userAfterLogin = (User) subject.getPrincipal();
             getRolesAndPermissions(userAfterLogin);
+
+            Session shrioSession = subject.getSession();
+            shrioSession.setTimeout(10000);
 
             return ResultUtil.success(userAfterLogin);
 
